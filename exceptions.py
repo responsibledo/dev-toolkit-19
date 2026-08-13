@@ -1,24 +1,23 @@
-class CustomError(Exception):
-    def __init__(self, message, code=None):
-        super().__init__(message)
-        self.code = code
+import time
+import requests
 
-class ValidationError(CustomError):
-    def __init__(self, field, message):
-        super().__init__(f'Validation error on {field}: {message}')
-        self.field = field
+class NetworkError(Exception):
+    pass
 
-class NotFoundError(CustomError):
-    def __init__(self, resource):
-        super().__init__(f'Resource not found: {resource}')
-        self.resource = resource
+class TimeoutError(NetworkError):
+    pass
 
-class DatabaseError(CustomError):
-    def __init__(self, message, db_code):
-        super().__init__(message)
-        self.db_code = db_code
-
-class PermissionError(CustomError):
-    def __init__(self, action):
-        super().__init__(f'Permission denied for action: {action}')
-        self.action = action
+def retry_request(url, max_retries=3, delay=1):
+    attempts = 0
+    while attempts < max_retries:
+        try:
+            response = requests.get(url, timeout=5)
+            response.raise_for_status()
+            return response.json()
+        except requests.exceptions.Timeout:
+            attempts += 1
+            print(f'Timeout occurred. Retrying {attempts}/{max_retries}...')
+            time.sleep(delay)
+        except requests.exceptions.RequestException as e:
+            raise NetworkError(f'Network error occurred: {e}') from e
+    raise TimeoutError('Max retries exceeded.')
