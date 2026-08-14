@@ -1,28 +1,39 @@
-import json
-from pathlib import Path
+from typing import Dict, Any
 
-class ConfigLoader:
-    def __init__(self, default_config: str):
-        self.default_config_path = Path(default_config)
-        self.config = self.load_defaults()
+class Config:
+    """
+    A class to handle configuration settings for the application.
+    """
 
-    def load_defaults(self):
-        with open(self.default_config_path, 'r') as file:
-            return json.load(file)
+    def __init__(self, settings: Dict[str, Any]) -> None:
+        """
+        Initialize the Config with a dictionary of settings.
+        
+        :param settings: A dictionary containing configuration settings.
+        """
+        self.settings = settings
 
-    def load_user_config(self, user_config: str):
-        user_config_path = Path(user_config)
-        if user_config_path.is_file():
-            with open(user_config_path, 'r') as file:
-                user_config_data = json.load(file)
-            self.config.update(user_config_data)
-        else:
-            print(f'User config {user_config} not found. Using defaults.')
+    def get(self, key: str, default: Any = None) -> Any:
+        """
+        Retrieve a setting by its key.
+        
+        :param key: The key of the setting to retrieve.
+        :param default: The default value to return if the key is not found.
+        :return: The value of the setting or the default value.
+        """
+        return self.settings.get(key, default)
 
-    def get(self, key: str, default=None):
-        return self.config.get(key, default)
+    def set(self, key: str, value: Any) -> None:
+        """
+        Set a configuration setting.
+        
+        :param key: The key of the setting to set.
+        :param value: The value to assign to the setting.
+        """
+        self.settings[key] = value
 
-if __name__ == '__main__':
-    loader = ConfigLoader('default_config.json')
-    loader.load_user_config('user_config.json')
-    print(loader.get('some_key', 'default_value'))
+    def __repr__(self) -> str:
+        """
+        Return a string representation of the configuration settings.
+        """
+        return f"Config(settings={self.settings})"
