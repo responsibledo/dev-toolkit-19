@@ -1,23 +1,41 @@
 import time
-import requests
 
 class NetworkError(Exception):
     pass
 
-class TimeoutError(NetworkError):
+class MaxRetryExceeded(Exception):
     pass
 
-def retry_request(url, max_retries=3, delay=1):
-    attempts = 0
-    while attempts < max_retries:
-        try:
-            response = requests.get(url, timeout=5)
-            response.raise_for_status()
-            return response.json()
-        except requests.exceptions.Timeout:
-            attempts += 1
-            print(f'Timeout occurred. Retrying {attempts}/{max_retries}...')
-            time.sleep(delay)
-        except requests.exceptions.RequestException as e:
-            raise NetworkError(f'Network error occurred: {e}') from e
-    raise TimeoutError('Max retries exceeded.')
+class Retry:
+    def __init__(self, max_retries=3, delay=1):
+        self.max_retries = max_retries
+        self.delay = delay
+
+    def __call__(self, function):
+        def wrapper(*args, **kwargs):
+            attempts = 0
+            while attempts < self.max_retries:
+                try:
+                    return function(*args, **kwargs)
+                except NetworkError:
+                    attempts += 1
+                    if attempts == self.max_retries:
+                        raise MaxRetryExceeded("Max retries exceeded")
+                    time.sleep(self.delay)
+                    self.delay *= 2  # Exponential backoff
+        return wrapper
+
+# Example usage of the retry logic
+def unreliable_network_operation():
+    import random
+    if random.choice([True, False]):
+        raise NetworkError("Network Failure")
+    return "Success!"
+
+reliable_operation = Retry(max_retries=5, delay=2)(unreliable_network_operation)
+
+if __name__ == "__main__":
+    try:
+        print(reliable_operation())
+    except MaxRetryExceeded as e:
+        print(e)
