@@ -1,41 +1,29 @@
-import time
+class RobloxError(Exception):
+    """Custom exception for Roblox-related errors."""
+    def __init__(self, message, *args):
+        super().__init__(message, *args)
+        self.message = message
 
-class NetworkError(Exception):
-    pass
+class NotFoundError(RobloxError):
+    """Exception raised when a resource is not found."""
+    def __init__(self, resource):
+        super().__init__(f'{resource} not found.')
+        self.resource = resource
 
-class MaxRetryExceeded(Exception):
-    pass
+class PermissionDeniedError(RobloxError):
+    """Exception raised for permission violations."""
+    def __init__(self, action):
+        super().__init__(f'Permission denied for action: {action}')
+        self.action = action
 
-class Retry:
-    def __init__(self, max_retries=3, delay=1):
-        self.max_retries = max_retries
-        self.delay = delay
+class InvalidDataError(RobloxError):
+    """Exception raised for invalid data errors."""
+    def __init__(self, data):
+        super().__init__(f'Invalid data provided: {data}')
+        self.data = data
 
-    def __call__(self, function):
-        def wrapper(*args, **kwargs):
-            attempts = 0
-            while attempts < self.max_retries:
-                try:
-                    return function(*args, **kwargs)
-                except NetworkError:
-                    attempts += 1
-                    if attempts == self.max_retries:
-                        raise MaxRetryExceeded("Max retries exceeded")
-                    time.sleep(self.delay)
-                    self.delay *= 2  # Exponential backoff
-        return wrapper
-
-# Example usage of the retry logic
-def unreliable_network_operation():
-    import random
-    if random.choice([True, False]):
-        raise NetworkError("Network Failure")
-    return "Success!"
-
-reliable_operation = Retry(max_retries=5, delay=2)(unreliable_network_operation)
-
-if __name__ == "__main__":
-    try:
-        print(reliable_operation())
-    except MaxRetryExceeded as e:
-        print(e)
+class RateLimitError(RobloxError):
+    """Exception raised when the rate limit is exceeded."""
+    def __init__(self, retry_after):
+        super().__init__(f'Rate limit exceeded. Try again after {retry_after} seconds.')
+        self.retry_after = retry_after
