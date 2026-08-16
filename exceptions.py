@@ -1,29 +1,29 @@
-class RobloxError(Exception):
-    """Custom exception for Roblox-related errors."""
-    def __init__(self, message, *args):
-        super().__init__(message, *args)
+class CustomError(Exception):
+    def __init__(self, message):
         self.message = message
+        super().__init__(self.message)
 
-class NotFoundError(RobloxError):
-    """Exception raised when a resource is not found."""
+class InvalidInputError(CustomError):
+    def __init__(self, input_value):
+        message = f"Invalid input: {input_value}"
+        super().__init__(message)
+
+class ConnectionError(CustomError):
+    def __init__(self, url):
+        message = f"Failed to connect to: {url}"
+        super().__init__(message)
+
+class TimeoutError(CustomError):
+    def __init__(self, operation):
+        message = f"Operation timed out: {operation}"
+        super().__init__(message)
+
+class NotFoundError(CustomError):
     def __init__(self, resource):
-        super().__init__(f'{resource} not found.')
-        self.resource = resource
+        message = f"Resource not found: {resource}"
+        super().__init__(message)
 
-class PermissionDeniedError(RobloxError):
-    """Exception raised for permission violations."""
-    def __init__(self, action):
-        super().__init__(f'Permission denied for action: {action}')
-        self.action = action
-
-class InvalidDataError(RobloxError):
-    """Exception raised for invalid data errors."""
-    def __init__(self, data):
-        super().__init__(f'Invalid data provided: {data}')
-        self.data = data
-
-class RateLimitError(RobloxError):
-    """Exception raised when the rate limit is exceeded."""
-    def __init__(self, retry_after):
-        super().__init__(f'Rate limit exceeded. Try again after {retry_after} seconds.')
-        self.retry_after = retry_after
+class PermissionDeniedError(CustomError):
+    def __init__(self):
+        message = "Permission denied"
+        super().__init__(message)
