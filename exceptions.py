@@ -1,29 +1,31 @@
-class CustomError(Exception):
-    def __init__(self, message):
-        self.message = message
-        super().__init__(self.message)
+class RobloxError(Exception):
+    """Base class for Roblox exceptions."""
+    pass
 
-class InvalidInputError(CustomError):
-    def __init__(self, input_value):
-        message = f"Invalid input: {input_value}"
-        super().__init__(message)
+class AssetNotFoundError(RobloxError):
+    """Exception raised when an asset is not found."""
+    def __init__(self, asset_id):
+        self.asset_id = asset_id
+        super().__init__(f'Asset with ID {asset_id} not found')
 
-class ConnectionError(CustomError):
-    def __init__(self, url):
-        message = f"Failed to connect to: {url}"
-        super().__init__(message)
+class InvalidUserError(RobloxError):
+    """Exception raised for invalid user actions."""
+    def __init__(self, username):
+        self.username = username
+        super().__init__(f'Invalid user: {username}')
 
-class TimeoutError(CustomError):
+class PermissionDeniedError(RobloxError):
+    """Exception raised when permissions are insufficient."""
+    def __init__(self, action):
+        self.action = action
+        super().__init__(f'Permission denied for action: {action}')
+
+class OperationTimeoutError(RobloxError):
+    """Exception raised on operation timeout."""
     def __init__(self, operation):
-        message = f"Operation timed out: {operation}"
-        super().__init__(message)
+        self.operation = operation
+        super().__init__(f'Operation {operation} timed out')
 
-class NotFoundError(CustomError):
-    def __init__(self, resource):
-        message = f"Resource not found: {resource}"
-        super().__init__(message)
-
-class PermissionDeniedError(CustomError):
-    def __init__(self):
-        message = "Permission denied"
-        super().__init__(message)
+# Example of raising an exception
+if __name__ == '__main__':
+    raise AssetNotFoundError(123456789)
