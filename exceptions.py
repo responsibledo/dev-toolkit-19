@@ -1,33 +1,42 @@
-import time
-import random
+class ValidationError(Exception):
+    """Exception raised for validation errors."""
 
-class NetworkError(Exception):
-    pass
+    def __init__(self, message, field):
+        self.message = message
+        self.field = field
+        super().__init__(self.message)
 
-class Retry:
-    def __init__(self, attempts=3, delay=1, backoff=2):
-        self.attempts = attempts
-        self.delay = delay
-        self.backoff = backoff
+    def __str__(self):
+        return f'{self.field}: {self.message}'
 
-    def __call__(self, func):
-        def wrapper(*args, **kwargs):
-            for attempt in range(1, self.attempts + 1):
-                try:
-                    return func(*args, **kwargs)
-                except NetworkError as e:
-                    if attempt == self.attempts:
-                        raise
-                    wait_time = self.delay * (self.backoff ** (attempt - 1))
-                    time.sleep(wait_time)
-                    print(f'Retrying... (Attempt {attempt})')
-        return wrapper
+class DatabaseError(Exception):
+    """Exception raised for database connection errors."""
 
-@Retry(attempts=5, delay=2)
-def fetch_data(url):
-    if random.choice([True, False]):  # Simulate a network issue
-        raise NetworkError('Network failed')
-    return f'Data from {url}'
+    def __init__(self, message):
+        self.message = message
+        super().__init__(self.message)
 
-if __name__ == '__main__':
-    print(fetch_data('http://example.com'))
+    def __str__(self):
+        return f'Database error: {self.message}'
+
+class AuthenticationError(Exception):
+    """Exception raised for authentication failures."""
+
+    def __init__(self, username):
+        self.username = username
+        self.message = f'Authentication failed for user: {username}'
+        super().__init__(self.message)
+
+    def __str__(self):
+        return self.message
+
+class PermissionError(Exception):
+    """Exception raised for permission related errors."""
+
+    def __init__(self, operation):
+        self.operation = operation
+        self.message = f'Permission denied for operation: {operation}'
+        super().__init__(self.message)
+
+    def __str__(self):
+        return self.message
