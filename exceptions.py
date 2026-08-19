@@ -1,42 +1,31 @@
-class ValidationError(Exception):
-    """Exception raised for validation errors."""
+class RobloxError(Exception):
+    pass
 
-    def __init__(self, message, field):
-        self.message = message
-        self.field = field
-        super().__init__(self.message)
+class ResourceNotFound(RobloxError):
+    def __init__(self, resource_id):
+        super().__init__(f'Resource with ID {resource_id} not found.')
+        self.resource_id = resource_id
 
-    def __str__(self):
-        return f'{self.field}: {self.message}'
+class InvalidInput(RobloxError):
+    def __init__(self, input_value):
+        super().__init__(f'Invalid input: {input_value}')
+        self.input_value = input_value
 
-class DatabaseError(Exception):
-    """Exception raised for database connection errors."""
+class PermissionDenied(RobloxError):
+    def __init__(self, action):
+        super().__init__(f'Permission denied for action: {action}')
+        self.action = action
 
-    def __init__(self, message):
-        self.message = message
-        super().__init__(self.message)
+class ActionTimeout(RobloxError):
+    def __init__(self, action, timeout):
+        super().__init__(f'Action {action} timed out after {timeout} seconds.')
+        self.action = action
+        self.timeout = timeout
 
-    def __str__(self):
-        return f'Database error: {self.message}'
-
-class AuthenticationError(Exception):
-    """Exception raised for authentication failures."""
-
-    def __init__(self, username):
-        self.username = username
-        self.message = f'Authentication failed for user: {username}'
-        super().__init__(self.message)
-
-    def __str__(self):
-        return self.message
-
-class PermissionError(Exception):
-    """Exception raised for permission related errors."""
-
-    def __init__(self, operation):
-        self.operation = operation
-        self.message = f'Permission denied for operation: {operation}'
-        super().__init__(self.message)
-
-    def __str__(self):
-        return self.message
+def handle_exceptions(func):
+    def wrapper(*args, **kwargs):
+        try:
+            return func(*args, **kwargs)
+        except RobloxError as e:
+            print(f'Error: {e}')
+    return wrapper
