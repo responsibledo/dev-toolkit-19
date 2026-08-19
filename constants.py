@@ -1,43 +1,27 @@
-from typing import Dict, Tuple
+class RobloxConstants:
+    BASE_URL = 'https://www.roblox.com'
+    GAME_PATH = '/games'
+    USER_PATH = '/users'
+    ASSET_PATH = '/asset'
+    API_VERSION = 'v1'
+    HEADER_CONTENT_TYPE = 'application/json'
+    HEADER_USER_AGENT = 'Mozilla/5.0'
 
-# Error messages
-ERROR_MESSAGES: Dict[str, str] = {
-    'invalid_input': 'Input value is not valid.',
-    'not_found': 'The requested item was not found.',
-    'timeout': 'The operation has timed out.',
-}
+class RobloxErrorCodes:
+    SUCCESS = 200
+    NOT_FOUND = 404
+    FORBIDDEN = 403
+    SERVER_ERROR = 500
 
-# Status codes
-STATUS_CODES: Dict[str, int] = {
-    'success': 200,
-    'not_found': 404,
-    'internal_error': 500,
-}
+class RobloxUserRoles:
+    ADMIN = 'Admin'
+    MODERATOR = 'Moderator'
+    PLAYER = 'Player'
+    GUEST = 'Guest'
 
-# Configuration settings as constants
-class Config:
-    TIMEOUT: int = 30  # seconds
-    RETRY_LIMIT: int = 5
-    BASE_URL: str = 'https://api.example.com/'
+class RobloxEvents:
+    USER_JOINED = 'UserJoined'
+    USER_LEFT = 'UserLeft'
+    GAME_STARTED = 'GameStarted'
+    GAME_ENDED = 'GameEnded'
 
-def get_error_message(key: str) -> str:
-    """Retrieve an error message by its key.
-
-    Args:
-        key (str): The key corresponding to the error message.
-
-    Returns:
-        str: The corresponding error message or a default message if key is not found.
-    """
-    return ERROR_MESSAGES.get(key, 'Unknown error occurred.')
-
-def get_status_code(key: str) -> int:
-    """Retrieve a status code by its key.
-
-    Args:
-        key (str): The key corresponding to the status code.
-
-    Returns:
-        int: The corresponding status code or 500 if key is not found.
-    """
-    return STATUS_CODES.get(key, 500)
